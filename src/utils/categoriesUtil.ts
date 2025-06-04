@@ -1,0 +1,42 @@
+export const financeCategories = [
+  // Income Categories
+  { id: 'salary', icon: 'ph:suitcase-simple-bold', value: 'Salary' },
+  { id: 'business', icon: 'ph:buildings-bold', value: 'Business' },
+  { id: 'investments', icon: 'ph:chart-line-up-bold', value: 'Investments' },
+  { id: 'freelance', icon: 'ph:laptop-bold', value: 'Freelance' },
+  { id: 'rental_income', icon: 'ph:house-bold', value: 'Rental Income' },
+  { id: 'dividends', icon: 'ph:money-bold', value: 'Dividends' },
+  { id: 'refunds', icon: 'ph:arrow-counter-clockwise-bold', value: 'Refunds' },
+  { id: 'gifts_received', icon: 'ph:gift-bold', value: 'Gifts Received' },
+  { id: 'other_income', icon: 'ph:plus-circle-bold', value: 'Other Income' },
+
+  // Expense Categories
+  { id: 'groceries', icon: 'ph:shopping-cart-bold', value: 'Groceries' },
+  { id: 'utilities', icon: 'ph:lightning-bold', value: 'Utilities' },
+  { id: 'rent', icon: 'ph:key-bold', value: 'Rent' },
+  { id: 'mortgage', icon: 'ph:bank-bold', value: 'Mortgage' },
+  { id: 'transportation', icon: 'ph:car-bold', value: 'Transportation' },
+  { id: 'insurance', icon: 'ph:shield-check-bold', value: 'Insurance' },
+  { id: 'subscriptions', icon: 'ph:playlist-bold', value: 'Subscriptions' },
+  { id: 'health_care', icon: 'ph:first-aid-kit-bold', value: 'Health Care' },
+  { id: 'education', icon: 'ph:graduation-cap-bold', value: 'Education' },
+  {
+    id: 'entertainment',
+    icon: 'ph:game-controller-bold',
+    value: 'Entertainment',
+  },
+  { id: 'dining_out', icon: 'ph:hamburger-bold', value: 'Dining Out' },
+  { id: 'travel', icon: 'ph:airplane-tilt-bold', value: 'Travel' },
+  { id: 'shopping', icon: 'ph:bag-bold', value: 'Shopping' },
+  { id: 'personal_care', icon: 'ph:sparkle-bold', value: 'Personal Care' },
+  { id: 'donations', icon: 'ph:heartbeat-bold', value: 'Donations' },
+  { id: 'taxes', icon: 'ph:receipt-bold', value: 'Taxes' },
+  {
+    id: 'debt_repayment',
+    icon: 'ph:credit-card-bold',
+    value: 'Debt Repayment',
+  },
+  { id: 'pet_care', icon: 'ph:dog-bold', value: 'Pet Care' },
+  { id: 'child_care', icon: 'ph:baby-bold', value: 'Child Care' },
+  { id: 'misc', icon: 'ph:dots-three-outline-bold', value: 'Miscellaneous' },
+] as const
