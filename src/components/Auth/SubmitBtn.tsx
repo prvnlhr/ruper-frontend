@@ -6,12 +6,12 @@ const SubmitBtn = ({ isSubmitting }: { isSubmitting: boolean }) => {
     <button
       type="submit"
       disabled={isSubmitting}
-      className="h-[50px] w-[50px] flex items-center justify-center rounded-full bg-white disabled:bg-[#4c4c4c] cursor-pointer"
+      className={`h-[50px] w-[50px] flex items-center justify-center rounded-full ${isSubmitting ? 'bg-[#3A3C3D]' : 'bg-white'} disabled:bg-[#4c4c4c] cursor-pointer`}
     >
       {isSubmitting ? (
         <Oval
           visible={true}
-          color="white"
+          color="#B5E4FC"
           secondaryColor="transparent"
           strokeWidth="3"
           ariaLabel="oval-loading"
@@ -21,7 +21,7 @@ const SubmitBtn = ({ isSubmitting }: { isSubmitting: boolean }) => {
       ) : (
         <Icon
           icon="bi:arrow-up"
-          className="h-[40%] w-[40%] rotate-90 text-black"
+          className="h-[40%] w-[40%] rotate-45 text-black"
         />
       )}
     </button>

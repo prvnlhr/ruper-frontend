@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import './font.css'
+import { ClerkProvider } from '@clerk/clerk-react'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
@@ -25,6 +26,7 @@ declare module '@tanstack/react-router' {
     router: typeof router
   }
 }
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 // Render the app
 const rootElement = document.getElementById('app')
@@ -32,7 +34,9 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+        <RouterProvider router={router} />
+      </ClerkProvider>
     </StrictMode>,
   )
 }

@@ -1,5 +1,6 @@
-const Dashboard = () => {
-  return <div>Dashboard</div>
-}
+import Dashboard from '@/components/Dashboard/Dashboard'
+import { createFileRoute } from '@tanstack/react-router'
 
-export default Dashboard
+export const Route = createFileRoute('/user/$userId/dashboard')({
+  component: Dashboard,
+})
