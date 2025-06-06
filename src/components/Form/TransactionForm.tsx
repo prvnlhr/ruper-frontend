@@ -1,22 +1,26 @@
+import { createTransaction } from '@/services/transaction/transactionServices'
 import { financeCategories } from '@/utils/categoriesUtil'
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { useState } from 'react'
+import { useParams } from '@tanstack/react-router'
 
 type FormMode = 'expense' | 'income'
 
-const FormLayout = ({ mode = 'expense' }: { mode?: FormMode }) => {
+const TransactionForm = ({ mode = 'expense' }: { mode?: FormMode }) => {
   const [showCategories, setShowCategories] = useState(false)
   const [amount, setAmount] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { userId } = useParams({ strict: false })
+  console.log('userId:', userId)
 
   // Filter categories based on form mode
-  const filteredCategories = financeCategories.filter(
-    (category) =>
-      mode === 'income'
-        ? category.id.includes('salary') ||
-          category.id.includes('income') ||
-          category.id.includes('dividends') // etc.
-        : !category.id.includes('income') && !category.id.includes('dividends'), // etc.
+  const filteredCategories = financeCategories.filter((category) =>
+    mode === 'income'
+      ? category.id.includes('salary') ||
+        category.id.includes('income') ||
+        category.id.includes('dividends')
+      : !category.id.includes('income') && !category.id.includes('dividends'),
   )
 
   const handleCategorySelect = (category: string) => {
@@ -24,12 +28,44 @@ const FormLayout = ({ mode = 'expense' }: { mode?: FormMode }) => {
     setShowCategories(false)
   }
 
-  const handleSubmit = () => {
-    // Handle form submission here
-    console.log({ amount, category: selectedCategory, type: mode })
-    // Reset form
-    setAmount('')
-    setSelectedCategory('')
+  const handleSubmit = async () => {
+    if (!amount || !selectedCategory) return
+
+    // Find the full category object
+    const categoryObj = financeCategories.find(
+      (cat) => cat.value === selectedCategory,
+    )
+
+    if (!categoryObj) {
+      console.log(' categoryObj:', categoryObj)
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      await createTransaction({
+        type: mode,
+        amount: Number(amount),
+        category: {
+          id: categoryObj.id,
+          name: categoryObj.value,
+          icon: categoryObj.icon,
+        },
+        description: '',
+        userId: userId as string,
+      })
+
+      // Reset form
+      setAmount('')
+      setSelectedCategory('')
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to add transaction'
+      console.log(' errorMessage:', errorMessage)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -105,6 +141,7 @@ const FormLayout = ({ mode = 'expense' }: { mode?: FormMode }) => {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0"
+                    disabled={isSubmitting}
                   />
                   <div className="w-[100%] h-auto flex items-center px-[5px]">
                     <p className="text-[1rem] text-[#ededed]">Amount</p>
@@ -118,8 +155,9 @@ const FormLayout = ({ mode = 'expense' }: { mode?: FormMode }) => {
               <div className="w-[100%] h-auto flex">
                 <div className="h-[100%] aspect-square flex items-center justify-center">
                   <button
-                    onClick={() => setShowCategories(true)}
-                    className="cursor-pointer hover:bg-[#58595a] h-[80%] aspect-square bg-[#3A3C3D] flex items-center justify-center rounded-full border border-[#4E4E4E]"
+                    onClick={() => !isSubmitting && setShowCategories(true)}
+                    disabled={isSubmitting}
+                    className="cursor-pointer hover:bg-[#58595a] h-[80%] aspect-square bg-[#3A3C3D] flex items-center justify-center rounded-full border border-[#4E4E4E] disabled:opacity-50"
                   >
                     <Icon
                       icon={
@@ -133,10 +171,11 @@ const FormLayout = ({ mode = 'expense' }: { mode?: FormMode }) => {
                 </div>
                 <div className="w-[100%] flex flex-col h-auto px-[10px]">
                   <input
-                    className="w-[100%] h-auto flex items-center text-[1.7rem] leading-none text-[#FDA29B] border-b border-[#4E4E4E] bg-transparent outline-none cursor-pointer"
+                    className="w-[100%] h-auto flex items-center text-[1.7rem] leading-none text-[#FDA29B] border-b border-[#4E4E4E] bg-transparent outline-none cursor-pointer disabled:opacity-50"
                     value={selectedCategory}
-                    onClick={() => setShowCategories(true)}
+                    onClick={() => !isSubmitting && setShowCategories(true)}
                     readOnly
+                    disabled={isSubmitting}
                     placeholder={
                       mode === 'income'
                         ? 'Select income source'
@@ -154,17 +193,24 @@ const FormLayout = ({ mode = 'expense' }: { mode?: FormMode }) => {
           <div className="w-[100%] h-auto flex justify-end p-[8px]">
             <button
               onClick={handleSubmit}
-              className="h-[50px] aspect-square flex items-center justify-center rounded-full bg-[#3A3C3D] border border-[#4E4E4E] hover:bg-[#58595a] transition-colors"
-              disabled={!amount || !selectedCategory}
+              className="h-[50px] aspect-square flex items-center justify-center rounded-full bg-[#3A3C3D] border border-[#4E4E4E] hover:bg-[#58595a] transition-colors disabled:opacity-50"
+              disabled={!amount || !selectedCategory || isSubmitting}
             >
-              <Icon
-                icon={
-                  mode === 'income'
-                    ? 'bitcoin-icons:arrow-down-filled'
-                    : 'bitcoin-icons:arrow-up-filled'
-                }
-                className={`w-[60%] h-[60%] text-[#ededed] ${mode === 'income' ? 'rotate-[-45deg]' : 'rotate-45'}`}
-              />
+              {isSubmitting ? (
+                <Icon
+                  icon="svg-spinners:180-ring"
+                  className="w-[60%] h-[60%] text-[#ededed]"
+                />
+              ) : (
+                <Icon
+                  icon={
+                    mode === 'income'
+                      ? 'bitcoin-icons:arrow-down-filled'
+                      : 'bitcoin-icons:arrow-up-filled'
+                  }
+                  className={`w-[60%] h-[60%] text-[#ededed] ${mode === 'income' ? 'rotate-[-45deg]' : 'rotate-45'}`}
+                />
+              )}
             </button>
           </div>
         </>
@@ -173,4 +219,4 @@ const FormLayout = ({ mode = 'expense' }: { mode?: FormMode }) => {
   )
 }
 
-export default FormLayout
+export default TransactionForm
