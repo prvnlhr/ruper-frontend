@@ -8,14 +8,34 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as IndexImport } from './routes/index'
 import { Route as AuthSignUpImport } from './routes/auth/sign-up'
 import { Route as AuthSignInImport } from './routes/auth/sign-in'
 import { Route as UserUserIdDashboardImport } from './routes/user/$userId/dashboard'
+import { Route as UserUserIdUserImport } from './routes/user/$userId/_user'
+
+// Create Virtual Routes
+
+const UserUserIdImport = createFileRoute('/user/$userId')()
 
 // Create/Update Routes
+
+const IndexRoute = IndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const UserUserIdRoute = UserUserIdImport.update({
+  id: '/user/$userId',
+  path: '/user/$userId',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthSignUpRoute = AuthSignUpImport.update({
   id: '/auth/sign-up',
@@ -30,15 +50,27 @@ const AuthSignInRoute = AuthSignInImport.update({
 } as any)
 
 const UserUserIdDashboardRoute = UserUserIdDashboardImport.update({
-  id: '/user/$userId/dashboard',
-  path: '/user/$userId/dashboard',
-  getParentRoute: () => rootRoute,
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => UserUserIdRoute,
+} as any)
+
+const UserUserIdUserRoute = UserUserIdUserImport.update({
+  id: '/_user',
+  getParentRoute: () => UserUserIdRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
     '/auth/sign-in': {
       id: '/auth/sign-in'
       path: '/auth/sign-in'
@@ -53,56 +85,110 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignUpImport
       parentRoute: typeof rootRoute
     }
+    '/user/$userId': {
+      id: '/user/$userId'
+      path: '/user/$userId'
+      fullPath: '/user/$userId'
+      preLoaderRoute: typeof UserUserIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/user/$userId/_user': {
+      id: '/user/$userId/_user'
+      path: '/user/$userId'
+      fullPath: '/user/$userId'
+      preLoaderRoute: typeof UserUserIdUserImport
+      parentRoute: typeof UserUserIdRoute
+    }
     '/user/$userId/dashboard': {
       id: '/user/$userId/dashboard'
-      path: '/user/$userId/dashboard'
+      path: '/dashboard'
       fullPath: '/user/$userId/dashboard'
       preLoaderRoute: typeof UserUserIdDashboardImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof UserUserIdImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface UserUserIdRouteChildren {
+  UserUserIdUserRoute: typeof UserUserIdUserRoute
+  UserUserIdDashboardRoute: typeof UserUserIdDashboardRoute
+}
+
+const UserUserIdRouteChildren: UserUserIdRouteChildren = {
+  UserUserIdUserRoute: UserUserIdUserRoute,
+  UserUserIdDashboardRoute: UserUserIdDashboardRoute,
+}
+
+const UserUserIdRouteWithChildren = UserUserIdRoute._addFileChildren(
+  UserUserIdRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/user/$userId': typeof UserUserIdUserRoute
   '/user/$userId/dashboard': typeof UserUserIdDashboardRoute
 }
 
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/user/$userId': typeof UserUserIdUserRoute
   '/user/$userId/dashboard': typeof UserUserIdDashboardRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/': typeof IndexRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/user/$userId': typeof UserUserIdRouteWithChildren
+  '/user/$userId/_user': typeof UserUserIdUserRoute
   '/user/$userId/dashboard': typeof UserUserIdDashboardRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/auth/sign-in' | '/auth/sign-up' | '/user/$userId/dashboard'
+  fullPaths:
+    | '/'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
+    | '/user/$userId'
+    | '/user/$userId/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth/sign-in' | '/auth/sign-up' | '/user/$userId/dashboard'
-  id: '__root__' | '/auth/sign-in' | '/auth/sign-up' | '/user/$userId/dashboard'
+  to:
+    | '/'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
+    | '/user/$userId'
+    | '/user/$userId/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
+    | '/user/$userId'
+    | '/user/$userId/_user'
+    | '/user/$userId/dashboard'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
-  UserUserIdDashboardRoute: typeof UserUserIdDashboardRoute
+  UserUserIdRoute: typeof UserUserIdRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
-  UserUserIdDashboardRoute: UserUserIdDashboardRoute,
+  UserUserIdRoute: UserUserIdRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -115,10 +201,14 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/",
         "/auth/sign-in",
         "/auth/sign-up",
-        "/user/$userId/dashboard"
+        "/user/$userId"
       ]
+    },
+    "/": {
+      "filePath": "index.ts"
     },
     "/auth/sign-in": {
       "filePath": "auth/sign-in.tsx"
@@ -126,8 +216,20 @@ export const routeTree = rootRoute
     "/auth/sign-up": {
       "filePath": "auth/sign-up.tsx"
     },
+    "/user/$userId": {
+      "filePath": "user/$userId",
+      "children": [
+        "/user/$userId/_user",
+        "/user/$userId/dashboard"
+      ]
+    },
+    "/user/$userId/_user": {
+      "filePath": "user/$userId/_user.tsx",
+      "parent": "/user/$userId"
+    },
     "/user/$userId/dashboard": {
-      "filePath": "user/$userId/dashboard.tsx"
+      "filePath": "user/$userId/dashboard.tsx",
+      "parent": "/user/$userId"
     }
   }
 }

@@ -3,9 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Icon } from '@iconify/react'
 import SubmitBtn from './SubmitBtn'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { signUpUser } from '@/services/auth/authServices'
 import { isClerkAPIResponseError } from '@clerk/clerk-react/errors'
+import { useUser } from '@clerk/clerk-react'
+import { useEffect } from 'react'
 
 const authSchema = z
   .object({
@@ -29,6 +31,16 @@ const authSchema = z
 type SignUpPageData = z.infer<typeof authSchema>
 
 export default function SignUpPage() {
+
+   const { user } = useUser()
+  const navigate = useNavigate()
+
+  // Redirect if user is already signed in
+  useEffect(() => {
+    if (user) {
+      navigate({ to: '/user/$userId/dashboard', params: { userId: user.id } })
+    }
+  }, [user, navigate])
   const {
     register,
     handleSubmit,

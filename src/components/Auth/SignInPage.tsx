@@ -3,9 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Icon } from '@iconify/react'
 import SubmitBtn from './SubmitBtn'
-import { Link } from '@tanstack/react-router'
-import { useSignIn } from '@clerk/clerk-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { useSignIn, useUser } from '@clerk/clerk-react'
 import { isClerkAPIResponseError } from '@clerk/clerk-react/errors'
+import { useEffect } from 'react'
 
 const signInSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
@@ -15,6 +16,16 @@ const signInSchema = z.object({
 type SignInFormData = z.infer<typeof signInSchema>
 
 export default function SignInPage() {
+  const { user } = useUser()
+  const navigate = useNavigate()
+
+  // Redirect if user is already signed in
+  useEffect(() => {
+    if (user) {
+      navigate({ to: '/user/$userId/dashboard', params: { userId: user.id } })
+    }
+  }, [user, navigate])
+
   const {
     register,
     handleSubmit,

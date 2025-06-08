@@ -1,8 +1,8 @@
 import { Icon } from '@iconify/react/dist/iconify.js'
 import SubHeader from '../SubHeader/SubHeader'
 import Header from '../Header/Header'
-import { useState } from 'react'
-import { useLoaderData } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { useLoaderData, useNavigate } from '@tanstack/react-router'
 import type { DashboardData } from '@/types/dashboard'
 
 import TransactionForm from '../Form/TransactionForm'
@@ -14,7 +14,6 @@ const Dashboard = () => {
   const data = useLoaderData({
     from: '/user/$userId/dashboard',
   }) as DashboardData
-  console.log(' data:', data)
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
